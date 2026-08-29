@@ -1,0 +1,28 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+noha_env/
+venv/
+.venv/
+
+# Environment files
+.env
+
+# NOHA runtime workspace
+workspace/
+
+# IDE
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+memory.json

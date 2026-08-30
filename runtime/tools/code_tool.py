@@ -24,6 +24,7 @@ class CodeTool(BaseTool):
     ) -> dict:
 
         prompt = payload.get("prompt")
+        file_name = payload.get("file_name")
 
         if not prompt:
             return {
@@ -31,14 +32,29 @@ class CodeTool(BaseTool):
                 "message": "No prompt provided."
             }
 
+        if file_name is None:
+            file_name = self._default_file_name(
+                payload.get("language")
+            )
+
+        if not isinstance(file_name, str) or not file_name.strip():
+            return {
+                "status": "error",
+                "message": "Code generation file_name must be a non-empty string.",
+            }
+
         try:
 
-            code = await self.generator.generate(prompt)
+            code = await self.generator.generate(
+                request=prompt,
+                file_name=file_name,
+            )
 
             return {
                 "status": "success",
                 "code": code,
                 "prompt": prompt,
+                "file_name": file_name,
             }
 
         except Exception as exc:
@@ -47,3 +63,24 @@ class CodeTool(BaseTool):
                 "status": "error",
                 "message": str(exc),
             }
+
+    @staticmethod
+    def _default_file_name(language: object) -> str:
+        """Provide a safe language hint for standalone code requests."""
+
+        extensions = {
+            "python": ".py",
+            "c++": ".cpp",
+            "c": ".c",
+            "java": ".java",
+            "javascript": ".js",
+            "typescript": ".ts",
+            "html": ".html",
+            "css": ".css",
+            "json": ".json",
+            "markdown": ".md",
+        }
+
+        normalized = str(language or "").strip().lower()
+
+        return f"generated{extensions.get(normalized, '.txt')}"

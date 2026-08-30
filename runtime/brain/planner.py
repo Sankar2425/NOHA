@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from runtime.brain.enums import PlanStatus, TaskStatus
+from runtime.brain.enums import PlanStatus, TaskAction, TaskStatus
 from runtime.brain.models import IntentResult, Plan
 from runtime.brain.task import Task
 
@@ -54,6 +54,8 @@ class Planner:
             )
 
             tasks.append(task)
+
+        self._enrich_code_generation_tasks(tasks)
 
         self._assign_dependencies(tasks)
 
@@ -115,6 +117,48 @@ class Planner:
         )
 
         return task
+
+    def _enrich_code_generation_tasks(
+        self,
+        tasks: list[Task],
+    ) -> None:
+        """Connect generated code to its later filesystem write task.
+
+        Intent classification describes tasks independently. When a generated
+        code output is written to a file later in the same plan, the Planner
+        adds the destination filename required by CodeGenerator and makes the
+        output field explicit for the Executor.
+        """
+
+        for index, code_task in enumerate(tasks, start=1):
+
+            if code_task.action != TaskAction.GENERATE_CODE:
+                continue
+
+            output_reference = f"$TASK_{index}_OUTPUT"
+
+            for write_task in tasks[index:]:
+
+                if (
+                    write_task.action != TaskAction.WRITE_FILE
+                    or write_task.payload.get("content")
+                    != output_reference
+                ):
+                    continue
+
+                path = write_task.payload.get("path")
+
+                if isinstance(path, str) and path.strip():
+                    code_task.payload.setdefault(
+                        "file_name",
+                        path,
+                    )
+
+                write_task.payload["content"] = (
+                    f"{output_reference}.code"
+                )
+
+                break
 
     # ==========================================================
     # TASK NAMING

@@ -10,9 +10,8 @@ class ApplicationTool(BaseTool):
     """
     Tool responsible for managing desktop applications.
 
-    Supported actions:
-        - OPEN_APP
-        - CLOSE_APP
+    Supported action:
+        - application
 
     Future:
         - LIST_RUNNING_APPS
@@ -32,32 +31,11 @@ class ApplicationTool(BaseTool):
 
         action = payload.get("action")
 
-        if action == TaskAction.OPEN_APP.value:
+        if action == TaskAction.APPLICATION.value:
             return self._open(payload)
 
-        if action == TaskAction.CLOSE_APP.value:
-            return self._close(payload)
-
-        if action == TaskAction.LIST_RUNNING_APPS.value:
-            return self._not_implemented(action)
-
-        if action == TaskAction.FOCUS_APP.value:
-            return self._not_implemented(action)
-
-        if action == TaskAction.MINIMIZE_APP.value:
-            return self._not_implemented(action)
-
-        if action == TaskAction.MAXIMIZE_APP.value:
-            return self._not_implemented(action)
-
-        if action == TaskAction.KILL_APP.value:
-            return self._not_implemented(action)
-
-        if action == TaskAction.RESTART_APP.value:
-            return self._not_implemented(action)
-
         return {
-            "success": False,
+            "status": "error",
             "message": f"Unsupported action: {action}",
         }
 
@@ -70,11 +48,11 @@ class ApplicationTool(BaseTool):
         payload: dict,
     ) -> dict:
 
-        app = payload.get("app", "").strip()
+        app = payload.get("name", payload.get("app", "")).strip()
 
         if not app:
             return {
-                "success": False,
+                "status": "error",
                 "message": "No application specified.",
             }
 
@@ -83,7 +61,7 @@ class ApplicationTool(BaseTool):
             subprocess.Popen(app)
 
             return {
-                "success": True,
+                "status": "success",
                 "message": f"Opened '{app}'.",
                 "application": app,
             }
@@ -91,71 +69,6 @@ class ApplicationTool(BaseTool):
         except Exception as exc:
 
             return {
-                "success": False,
+                "status": "error",
                 "message": str(exc),
             }
-
-    # ---------------------------------------------------------
-    # CLOSE APPLICATION
-    # ---------------------------------------------------------
-
-    def _close(
-        self,
-        payload: dict,
-    ) -> dict:
-
-        process = payload.get("process", "").strip()
-
-        if not process:
-            return {
-                "success": False,
-                "message": "No process specified.",
-            }
-
-        try:
-
-            subprocess.run(
-                [
-                    "taskkill",
-                    "/F",
-                    "/IM",
-                    process,
-                ],
-                check=True,
-                capture_output=True,
-                text=True,
-            )
-
-            return {
-                "success": True,
-                "message": f"Closed '{process}'.",
-                "process": process,
-            }
-
-        except subprocess.CalledProcessError as exc:
-
-            return {
-                "success": False,
-                "message": exc.stderr.strip(),
-            }
-
-        except Exception as exc:
-
-            return {
-                "success": False,
-                "message": str(exc),
-            }
-
-    # ---------------------------------------------------------
-    # FUTURE ACTIONS
-    # ---------------------------------------------------------
-
-    def _not_implemented(
-        self,
-        action: str,
-    ) -> dict:
-
-        return {
-            "success": False,
-            "message": f"{action} is not implemented yet.",
-        }

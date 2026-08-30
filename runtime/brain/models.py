@@ -154,3 +154,5 @@ class ReflectionResult:
     message: str = ""
 
     recommendations: list[str] = field(default_factory=list)
+
+    execution: ExecutionResult | None = None

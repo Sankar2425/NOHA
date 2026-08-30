@@ -32,7 +32,7 @@ class Executor:
     """
 
     TASK_OUTPUT_PATTERN = re.compile(
-        r"\$TASK_(\d+)_OUTPUT"
+        r"\$TASK_(\d+)_OUTPUT(?:\.([A-Za-z_]\w*))?"
     )
 
     def __init__(
@@ -420,10 +420,23 @@ class Executor:
                     match.group(1)
                 )
 
-                return self._get_task_output(
+                output = self._get_task_output(
                     task_number,
                     plan,
                 )
+
+                field = match.group(2)
+
+                if field is None:
+                    return output
+
+                if not isinstance(output, dict) or field not in output:
+                    raise KeyError(
+                        f"Task {task_number} output has no field "
+                        f"'{field}'."
+                    )
+
+                return output[field]
 
             return value
 

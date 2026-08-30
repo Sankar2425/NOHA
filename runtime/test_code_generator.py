@@ -8,7 +8,8 @@ async def main():
     generator = CodeGenerator()
 
     code = await generator.generate(
-        "Create a Python hello world program"
+        request="Create a Python hello world program",
+        file_name="hello.py",
     )
 
     print("\nGENERATED CODE:\n")

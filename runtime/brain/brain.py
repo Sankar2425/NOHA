@@ -79,14 +79,14 @@ class Brain:
             # Context
             # -------------------------------------------------
 
-            self.context.last_command = command
+            self.context.last_user_command = command
             self.state.current_goal = command
 
             # -------------------------------------------------
             # Intent Classification
             # -------------------------------------------------
 
-            intent = self.classifier.classify(command)
+            intent = await self.classifier.classify(command)
 
             self.state.current_intent = intent
 
@@ -94,10 +94,7 @@ class Brain:
             # Planning
             # -------------------------------------------------
 
-            plan = self.planner.create_plan(
-                goal=command,
-                intent_result=intent,
-            )
+            plan = self.planner.create_plan(intent)
 
             self.state.current_plan = plan
 
@@ -118,6 +115,8 @@ class Brain:
             reflection: ReflectionResult = (
                 await self.reflection.reflect(execution)
             )
+
+            reflection.execution = execution
 
             self.state.last_reflection = reflection
 

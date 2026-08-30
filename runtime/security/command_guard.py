@@ -22,7 +22,8 @@ ALLOWED_COMMANDS = [
     "dir",
     "hostname",
     "whoami",
-    "systeminfo"
+    "systeminfo",
+    "echo"
 ]
 
 class CommandGuard:

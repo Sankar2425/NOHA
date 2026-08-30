@@ -1,8 +1,8 @@
-from runtime.core.runtime_engine import RuntimeEngine
+from runtime.NohaBuilder import RuntimeBuilder
 
-runtime = RuntimeEngine()
+runtime = RuntimeBuilder().build()
 
 
 async def process_command(command: str):
 
-    return await runtime.handle_command(command)
+    return await runtime.process(command)

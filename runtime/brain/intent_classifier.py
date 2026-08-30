@@ -74,6 +74,10 @@ class IntentClassifier:
             TaskAction.SEARCH_WEB,
         },
 
+        SkillType.APPLICATION: {
+            TaskAction.APPLICATION,
+        },
+
         SkillType.MEMORY: {
             TaskAction.SAVE_MEMORY,
             TaskAction.LOAD_MEMORY,
@@ -534,6 +538,31 @@ Response:
 Example 5
 
 User:
+Open Notepad.
+
+Response:
+
+{
+    "protocol_version": 1,
+    "goal": "Open Notepad",
+    "intent": "application",
+    "tasks": [
+        {
+            "skill": "application",
+            "action": "application",
+            "parameters": {
+                "name": "notepad"
+            }
+        }
+    ],
+    "confidence": 0.98,
+    "reasoning": "The user wants to open a desktop application."
+}
+
+
+Example 6
+
+User:
 Run the Python file calculator.py.
 
 Response:
@@ -556,7 +585,7 @@ Response:
 }
 
 
-Example 6
+Example 7
 
 User:
 Create a folder called test, create app.py inside it, and write a Python calculator program into the file.

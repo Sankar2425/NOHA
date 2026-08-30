@@ -42,13 +42,23 @@ class TerminalTool(BaseTool):
                 text=True,
             )
 
+            if result.returncode == 0:
+                return {
+                    "status": "success",
+                    "message": "Command completed successfully.",
+                    "command": command,
+                    "stdout": result.stdout,
+                    "stderr": result.stderr,
+                    "return_code": result.returncode,
+                }
+
             return {
-                "status": "success",
+                "status": "error",
+                "message": "Command exited with a non-zero status.",
                 "command": command,
                 "stdout": result.stdout,
                 "stderr": result.stderr,
                 "return_code": result.returncode,
-                "success": result.returncode == 0,
             }
 
         except Exception as exc:

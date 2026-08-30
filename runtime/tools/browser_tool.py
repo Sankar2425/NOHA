@@ -27,7 +27,7 @@ class BrowserTool(BaseTool):
             return self._search_web(payload)
 
         return {
-            "success": False,
+            "status": "error",
             "message": f"Unsupported browser action: {action}",
         }
 
@@ -40,7 +40,7 @@ class BrowserTool(BaseTool):
 
         if not url:
             return {
-                "success": False,
+                "status": "error",
                 "message": "No URL provided.",
             }
 
@@ -50,10 +50,24 @@ class BrowserTool(BaseTool):
         ):
             url = f"https://{url}"
 
-        webbrowser.open(url)
+        try:
+            opened = webbrowser.open(url)
+
+        except Exception as exc:
+            return {
+                "status": "error",
+                "message": str(exc),
+            }
+
+        if not opened:
+            return {
+                "status": "error",
+                "message": f"No browser could open {url}.",
+                "url": url,
+            }
 
         return {
-            "success": True,
+            "status": "success",
             "message": f"Opened {url}",
             "url": url,
         }
@@ -67,7 +81,7 @@ class BrowserTool(BaseTool):
 
         if not query:
             return {
-                "success": False,
+                "status": "error",
                 "message": "Search query is empty.",
             }
 
@@ -76,10 +90,24 @@ class BrowserTool(BaseTool):
             + quote_plus(query)
         )
 
-        webbrowser.open(url)
+        try:
+            opened = webbrowser.open(url)
+
+        except Exception as exc:
+            return {
+                "status": "error",
+                "message": str(exc),
+            }
+
+        if not opened:
+            return {
+                "status": "error",
+                "message": "No browser could open the search URL.",
+                "url": url,
+            }
 
         return {
-            "success": True,
+            "status": "success",
             "message": f'Searching for "{query}"',
             "url": url,
         }
